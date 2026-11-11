@@ -1,0 +1,386 @@
+<!doctype html>
+<html lang="zh-Hant-TW">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex">
+<title>請假補課｜高名補習班 建國分校</title>
+<style>
+:root{--bg:#e6f3ee;--card:#fffefa;--ink:#1f3a35;--muted:#5d7a72;--brand:#264844;--accent:#326b5d;--chip:#dcefe8;--line:#cfe3dc;--warn:#b4442e;--ok:#2f7d5b}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 system-ui,-apple-system,"PingFang TC","Noto Sans TC","Microsoft JhengHei",sans-serif;-webkit-text-size-adjust:100%}
+main{max-width:560px;margin:0 auto;padding:16px 14px 120px}
+header{padding:8px 4px 14px}
+h1{margin:0;font-size:24px;color:var(--brand)}
+.sub{margin:2px 0 0;color:var(--muted);font-size:14px}
+.lead{margin:10px 0 0;font-size:15px}
+.notice{display:none;margin:12px 0 0;padding:10px 12px;border-radius:12px;background:#fff4e5;color:#7a4a12;font-size:14px}
+section{background:var(--card);border-radius:16px;padding:14px 14px 16px;margin:12px 0;box-shadow:0 1px 0 #c3ddd4}
+h2{margin:0 0 8px;font-size:17px;color:var(--brand)}
+h2 small{font-weight:400;color:var(--muted);font-size:13px;margin-left:6px}
+.hint{margin:0 0 10px;color:var(--muted);font-size:13px}
+input[type=text],textarea{width:100%;font:inherit;color:inherit;padding:11px 12px;border:1.5px solid var(--line);border-radius:12px;background:#fff}
+textarea{min-height:76px;resize:vertical}
+input:focus,textarea:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px #326b5d22}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{appearance:none;border:1.5px solid var(--line);background:var(--chip);color:var(--ink);border-radius:999px;padding:9px 14px;font:inherit;font-size:15px;line-height:1.3;cursor:pointer;text-align:left}
+.chip small{display:block;color:var(--muted);font-size:12px}
+.chip[aria-pressed=true]{background:var(--brand);border-color:var(--brand);color:#fff}
+.chip[aria-pressed=true] small{color:#d9efe7}
+.list{display:grid;gap:8px}
+.list .chip{border-radius:12px;width:100%}
+.day{margin:12px 0 6px;font-size:14px;font-weight:700;color:var(--accent)}
+.day:first-child{margin-top:0}
+.err{display:none;margin:8px 0 0;color:var(--warn);font-size:14px}
+section.bad{box-shadow:0 0 0 2px var(--warn)}
+section.bad .err{display:block}
+.empty{color:var(--muted);font-size:14px;margin:0}
+.bar{position:fixed;left:0;right:0;bottom:0;padding:10px 14px calc(10px + env(safe-area-inset-bottom));background:linear-gradient(#e6f3ee00,#e6f3ee 30%)}
+.bar button,.sheet button{display:block;width:100%;max-width:560px;margin:0 auto;border:0;border-radius:14px;padding:14px;font:inherit;font-size:17px;font-weight:700;color:#fff;background:var(--brand);cursor:pointer}
+.sheet{position:fixed;inset:0;display:none;align-items:flex-end;background:#0007;z-index:10}
+.sheet.open{display:flex}
+.sheet .box{width:100%;max-width:560px;margin:0 auto;max-height:88vh;overflow:auto;background:var(--card);border-radius:18px 18px 0 0;padding:18px 16px calc(16px + env(safe-area-inset-bottom))}
+.sheet h2{font-size:18px}
+.preview{white-space:pre-wrap;background:#f2f8f5;border-radius:12px;padding:12px;font-size:15px;margin:8px 0 14px}
+.sheet .second{background:transparent;color:var(--brand);border:1.5px solid var(--line);margin-top:8px;font-weight:400}
+.done{text-align:center;padding:48px 10px}
+.done .big{font-size:52px}
+footer{color:var(--muted);font-size:13px;text-align:center;margin:18px 0}
+</style>
+</head>
+<body>
+<main id="form-view">
+  <header>
+    <h1>請假補課</h1>
+    <p class="sub">高名補習班・建國分校</p>
+    <p class="lead">點選就好，只有孩子姓名要打字。送出後教務老師會確認，補課時間排好會在 LINE 通知您。</p>
+    <p class="notice" id="outside">請從高名補習班的 LINE 官方帳號打開這個表單，送出的內容才會傳給老師。</p>
+  </header>
+
+  <section id="s-name">
+    <h2>孩子姓名</h2>
+    <input id="name" type="text" maxlength="20" autocomplete="off" aria-label="孩子姓名">
+    <p class="err">請填孩子的姓名</p>
+  </section>
+
+  <section id="s-grade">
+    <h2>年級</h2>
+    <div class="chips" id="grades"></div>
+    <p class="err">請選年級</p>
+  </section>
+
+  <section id="s-leave">
+    <h2>要請假的課<small>可以選好幾堂</small></h2>
+    <p class="hint">列出今天起兩週內這個年級的課。</p>
+    <div id="sessions"><p class="empty">先選年級，這裡會列出可以請假的課。</p></div>
+    <p class="err">請選要請假的課</p>
+  </section>
+
+  <section id="s-reason">
+    <h2>請假理由</h2>
+    <div class="chips" id="reasons"></div>
+    <p class="hint" style="margin:12px 0 6px" id="why-label">說明（選填）</p>
+    <input id="why" type="text" maxlength="60" aria-label="請假說明">
+    <p class="err" id="reason-err">請選請假理由</p>
+  </section>
+
+  <section id="s-makeup">
+    <h2>想補課的日期<small>可以選好幾天</small></h2>
+    <p class="hint">列出請假隔天起一週（週日不上課）。教務老師會照您選的日子排時間。</p>
+    <div class="chips" id="makeup"><p class="empty">選好要請假的課之後，這裡會列出日期。</p></div>
+    <div class="chips" style="margin-top:10px" id="makeup-other"></div>
+    <p class="err">請選想補課的日期，或選「請老師安排」「不用補課」</p>
+  </section>
+
+  <section id="s-note">
+    <h2>備註<small>選填</small></h2>
+    <textarea id="note" maxlength="200" aria-label="備註"></textarea>
+  </section>
+
+  <footer>營業時間：平日 13:30～22:00、週六 09:30～17:30<br>當天臨時請假，請再打電話給櫃台：07-2226769</footer>
+</main>
+
+<div class="bar" id="bar"><button type="button" id="submit">送出</button></div>
+
+<div class="sheet" id="sheet" role="dialog" aria-modal="true" aria-labelledby="sheet-title">
+  <div class="box">
+    <h2 id="sheet-title">請確認送出的內容</h2>
+    <div class="preview" id="preview"></div>
+    <p class="err" id="send-err" style="display:none"></p>
+    <button type="button" id="confirm">確認送出</button>
+    <button type="button" class="second" id="back">回去修改</button>
+  </div>
+</div>
+
+<main id="done-view" hidden>
+  <div class="done">
+    <div class="big">✅</div>
+    <h1>已經送出了</h1>
+    <p class="lead">教務老師會確認請假，補課時間排好後會在 LINE 通知您。<br>謝謝您！</p>
+    <p><button type="button" id="close" class="chip">關閉</button></p>
+  </div>
+</main>
+
+<script charset="utf-8" src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+<script>
+"use strict";
+// ===== 設定（換學期改 CLASSES 和 TERM_END）=====
+var LIFF_ID = "2012434696-Agf71fLx";          // LINE Developers：高名補習班 試聽表單 → LIFF「請假補課」
+var TERM_END = "2027-01-31";                    // 115 學年度上學期
+var GRADES = [["小五", "國小"], ["小六", "國小"], ["國一", "國一"], ["國二", "國二"], ["國三", "國三"]];
+var GRADE_PARAM = {"5": "小五", "6": "小六", "7": "國一", "8": "國二", "9": "國三"};
+var REASONS = ["病假", "事假", "學校活動", "其他"];
+var MAKEUP_DAYS = 7;                            // 請假隔天起列幾天（週日不列），和 bot 的 app/makeup.py 一樣
+// 115 學年度上學期課表（gaoming-line-bot/課表/115上學期.csv，含測輔）。s：[星期 1～6, 開始, 結束]
+var CLASSES = [
+  {g: "國小", name: "英文", s: [[6, "09:00", "10:30"]]},
+  {g: "國小", name: "國文", s: [[6, "10:30", "12:00"]]},
+  {g: "國小", name: "數學", s: [[6, "13:30", "16:30"]]},
+  {g: "國一", name: "自然", s: [[1, "17:40", "20:40"]]},
+  {g: "國一", name: "英文", s: [[2, "17:40", "20:40"]]},
+  {g: "國一", name: "前瞻數學", s: [[3, "17:40", "20:40"], [4, "17:40", "20:40"]]},
+  {g: "國一", name: "菁英數學", s: [[3, "17:40", "20:40"], [6, "13:30", "16:30"]]},
+  {g: "國一", name: "國文", s: [[4, "17:40", "20:40"]]},
+  {g: "國一", name: "英文自然測輔", s: [[5, "17:40", "20:40"]]},
+  {g: "國一", name: "單自他科測輔", s: [[5, "17:40", "20:40"]]},
+  {g: "國二", name: "英文理化測輔", s: [[1, "17:40", "20:40"]]},
+  {g: "國二", name: "國文", s: [[2, "17:40", "20:40"]]},
+  {g: "國二", name: "理化", s: [[3, "17:40", "20:40"]]},
+  {g: "國二", name: "數學", s: [[4, "17:40", "20:40"]]},
+  {g: "國二", name: "英文", s: [[5, "17:40", "20:40"]]},
+  {g: "國三", name: "數學", s: [[1, "17:40", "21:10"]]},
+  {g: "國三", name: "國文", s: [[2, "17:40", "21:10"]]},
+  {g: "國三", name: "英文", s: [[3, "17:40", "21:10"]]},
+  {g: "國三", name: "自然", s: [[4, "17:40", "21:10"]]},
+  {g: "國三", name: "社會", s: [[5, "17:40", "21:10"]]},
+  {g: "國三", name: "單測輔", s: [[5, "17:40", "21:10"]]}
+];
+var WD = ["日", "一", "二", "三", "四", "五", "六"];
+var NL = String.fromCharCode(10);
+var TEACHER = "請老師安排", NO_MAKEUP = "不用補課";
+
+function $(id) { return document.getElementById(id); }
+var state = {grade: "", sessions: new Set(), reason: "", makeup: new Set(), makeupOther: ""};
+
+function el(tag, attrs) {
+  var e = document.createElement(tag);
+  var a = attrs || {};
+  Object.keys(a).forEach(function (k) {
+    if (k === "on") e.addEventListener("click", a[k]);
+    else if (a[k] !== null && a[k] !== undefined) e.setAttribute(k, a[k]);
+  });
+  for (var i = 2; i < arguments.length; i++) if (arguments[i] !== null && arguments[i] !== undefined) e.append(arguments[i]);
+  return e;
+}
+function chip(label, sub, pressed, on) {
+  return el("button", {type: "button", "class": "chip", "aria-pressed": String(pressed), on: on}, label,
+            sub ? el("small", {}, sub) : null);
+}
+
+// 台灣時間的「現在」：回傳一個本地欄位等於台灣時間的 Date
+function twNow() {
+  var d = new Date();
+  return new Date(d.getTime() + (d.getTimezoneOffset() + 480) * 60000);
+}
+function pad(n) { return String(n).padStart(2, "0"); }
+function ymd(d) { return d.getFullYear() + "-" + pad(d.getMonth() + 1) + "-" + pad(d.getDate()); }
+function hm(d) { return pad(d.getHours()) + ":" + pad(d.getMinutes()); }
+function parseDay(s) { var p = s.split("-").map(Number); return new Date(p[0], p[1] - 1, p[2]); }
+function md(s) { var d = parseDay(s); return (d.getMonth() + 1) + "/" + d.getDate() + "（" + WD[d.getDay()] + "）"; }
+function gradeGroup(grade) { return (GRADES.find(function (x) { return x[0] === grade; }) || [])[1]; }
+
+// 今天起 14 天裡，這個年級每一堂課（今天已經下課的不列）
+function sessionOptions() {
+  var out = [];
+  if (!state.grade) return out;
+  var g = gradeGroup(state.grade);
+  var now = twNow(), today = new Date(now); today.setHours(0, 0, 0, 0);
+  var nowHM = hm(now);
+  for (var i = 0; i < 14; i++) {
+    var d = new Date(today); d.setDate(today.getDate() + i);
+    var day = ymd(d);
+    if (day > TERM_END) break;
+    CLASSES.forEach(function (c) {
+      if (c.g !== g) return;
+      c.s.forEach(function (x) {
+        if (x[0] % 7 !== d.getDay()) return;
+        if (i === 0 && x[2] <= nowHM) return;
+        out.push({key: day + "|" + x[1] + "|" + c.name, day: day, start: x[1], end: x[2], name: c.name});
+      });
+    });
+  }
+  return out.sort(function (a, b) { return (a.day + a.start + a.name).localeCompare(b.day + b.start + b.name); });
+}
+function chosenSessions() {
+  return sessionOptions().filter(function (o) { return state.sessions.has(o.key); });
+}
+
+// 想補課的日期：最後一堂請假的隔天起一週（今天以前的請假從明天起算），週日、請假的日子不列
+function makeupOptions() {
+  var chosen = chosenSessions();
+  if (!chosen.length) return [];
+  var leaveDays = chosen.map(function (o) { return o.day; });
+  var today = ymd(twNow());
+  var last = leaveDays.reduce(function (a, b) { return a > b ? a : b; });
+  var start = parseDay(last > today ? last : today);
+  var out = [];
+  for (var i = 1; i <= MAKEUP_DAYS; i++) {
+    var d = new Date(start); d.setDate(start.getDate() + i);
+    var day = ymd(d);
+    if (d.getDay() === 0 || leaveDays.indexOf(day) >= 0) continue;
+    out.push(day);
+  }
+  return out;
+}
+
+function renderGrades() {
+  var box = $("grades"); box.replaceChildren();
+  GRADES.forEach(function (x) {
+    var label = x[0];
+    box.append(chip(label, null, state.grade === label, function () {
+      if (state.grade !== label) { state.grade = label; state.sessions.clear(); state.makeup.clear(); }
+      renderAll(); clearBad("s-grade");
+    }));
+  });
+}
+
+function renderSessions() {
+  var box = $("sessions"); box.replaceChildren();
+  if (!state.grade) { box.append(el("p", {"class": "empty"}, "先選年級，這裡會列出可以請假的課。")); return; }
+  var opts = sessionOptions();
+  if (!opts.length) { box.append(el("p", {"class": "empty"}, "接下來兩週沒有這個年級的課，請在備註寫要請假的日子。")); return; }
+  var lastDay = "", list = null;
+  opts.forEach(function (o) {
+    if (o.day !== lastDay) {
+      lastDay = o.day;
+      box.append(el("p", {"class": "day"}, md(o.day)));
+      list = el("div", {"class": "chips"});
+      box.append(list);
+    }
+    list.append(chip(o.name, o.start + "–" + o.end, state.sessions.has(o.key), function () {
+      if (state.sessions.has(o.key)) state.sessions.delete(o.key); else state.sessions.add(o.key);
+      var keep = makeupOptions();
+      Array.from(state.makeup).forEach(function (d) { if (keep.indexOf(d) < 0) state.makeup.delete(d); });
+      renderAll(); clearBad("s-leave");
+    }));
+  });
+}
+
+function renderReasons() {
+  var box = $("reasons"); box.replaceChildren();
+  REASONS.forEach(function (r) {
+    box.append(chip(r, null, state.reason === r, function () { state.reason = r; renderReasons(); clearBad("s-reason"); }));
+  });
+  $("why-label").textContent = state.reason === "其他" ? "說明（請寫一下原因）" : "說明（選填）";
+}
+
+function renderMakeup() {
+  var box = $("makeup"); box.replaceChildren();
+  var opts = makeupOptions();
+  if (!state.sessions.size) box.append(el("p", {"class": "empty"}, "選好要請假的課之後，這裡會列出日期。"));
+  opts.forEach(function (day) {
+    box.append(chip(md(day), null, state.makeup.has(day), function () {
+      if (state.makeup.has(day)) state.makeup.delete(day); else state.makeup.add(day);
+      state.makeupOther = "";
+      renderMakeup(); clearBad("s-makeup");
+    }));
+  });
+  var other = $("makeup-other"); other.replaceChildren();
+  [TEACHER, NO_MAKEUP].forEach(function (label) {
+    other.append(chip(label, null, state.makeupOther === label, function () {
+      state.makeupOther = state.makeupOther === label ? "" : label;
+      if (state.makeupOther) state.makeup.clear();
+      renderMakeup(); clearBad("s-makeup");
+    }));
+  });
+}
+
+function renderAll() { renderGrades(); renderSessions(); renderReasons(); renderMakeup(); }
+
+// ===== 檢查與送出 =====
+function clearBad(id) { $(id).classList.remove("bad"); }
+
+function validate() {
+  var bad = [];
+  if (!$("name").value.trim()) bad.push("s-name");
+  if (!state.grade) bad.push("s-grade");
+  if (!chosenSessions().length) bad.push("s-leave");
+  if (!state.reason || (state.reason === "其他" && !$("why").value.trim())) bad.push("s-reason");
+  $("reason-err").textContent = state.reason === "其他" ? "請寫一下請假的原因" : "請選請假理由";
+  if (!state.makeup.size && !state.makeupOther) bad.push("s-makeup");
+  ["s-name", "s-grade", "s-leave", "s-reason", "s-makeup"].forEach(function (id) { $(id).classList.toggle("bad", bad.indexOf(id) >= 0); });
+  if (bad.length) $(bad[0]).scrollIntoView({behavior: "smooth", block: "center"});
+  return !bad.length;
+}
+
+function compose() {
+  var why = $("why").value.trim();
+  var lines = ["【請假補課】",
+    "孩子姓名：" + $("name").value.trim(),
+    "年級：" + state.grade,
+    "請假："];
+  chosenSessions().forEach(function (o) { lines.push("・" + md(o.day) + " " + o.start + "–" + o.end + " " + o.name); });
+  lines.push("請假理由：" + state.reason + (why ? "（" + why + "）" : ""));
+  if (state.makeupOther) {
+    lines.push("想補課的日期：" + state.makeupOther);
+  } else {
+    lines.push("想補課的日期：");
+    makeupOptions().filter(function (d) { return state.makeup.has(d); }).forEach(function (d) { lines.push("・" + md(d)); });
+  }
+  var note = $("note").value.trim();
+  if (note) lines.push("備註：" + note);
+  return lines.join(NL);
+}
+
+var inClient = false;
+function initLiff() {
+  if (!window.liff) { $("outside").style.display = "block"; return Promise.resolve(); }
+  return liff.init({liffId: LIFF_ID})
+    .then(function () { inClient = liff.isInClient(); })
+    .catch(function (e) { console.warn("LIFF init failed", e); })
+    .then(function () { if (!inClient) $("outside").style.display = "block"; });
+}
+
+function gradeFromUrl() {
+  var p = new URLSearchParams(location.search);
+  var g = p.get("g");
+  if (!g && p.get("liff.state")) g = new URLSearchParams(p.get("liff.state").replace(/^[^?]*[?]/, "")).get("g");
+  if (GRADE_PARAM[g]) return GRADE_PARAM[g];
+  return GRADES.some(function (x) { return x[0] === g; }) ? g : "";
+}
+
+$("submit").addEventListener("click", function () {
+  if (!validate()) return;
+  $("preview").textContent = compose();
+  $("send-err").style.display = "none";
+  $("sheet").classList.add("open");
+});
+$("back").addEventListener("click", function () { $("sheet").classList.remove("open"); });
+$("confirm").addEventListener("click", function () {
+  var text = compose(), btn = $("confirm"), err = $("send-err");
+  if (!inClient) {
+    err.textContent = "要在 LINE 裡打開這個表單才能送出。也可以複製上面的內容，貼到高名補習班的 LINE 聊天室。";
+    err.style.display = "block";
+    return;
+  }
+  btn.disabled = true; btn.textContent = "送出中…";
+  liff.sendMessages([{type: "text", text: text}]).then(function () {
+    $("sheet").classList.remove("open");
+    $("form-view").hidden = true; $("bar").hidden = true; $("done-view").hidden = false;
+    setTimeout(function () { try { liff.closeWindow(); } catch (e) {} }, 3000);
+  }).catch(function () {
+    err.textContent = "送出失敗，請再按一次；一直失敗的話，請複製上面的內容貼到聊天室，或打 07-2226769。";
+    err.style.display = "block";
+    btn.disabled = false; btn.textContent = "確認送出";
+  });
+});
+$("close").addEventListener("click", function () { try { liff.closeWindow(); } catch (e) { window.close(); } });
+$("name").addEventListener("input", function () { clearBad("s-name"); });
+$("why").addEventListener("input", function () { clearBad("s-reason"); });
+
+state.grade = gradeFromUrl();
+renderAll();
+initLiff().then(function () { var g = gradeFromUrl(); if (g && !state.grade) { state.grade = g; renderAll(); } });
+</script>
+</body>
+</html>
